@@ -1,26 +1,200 @@
 @import "tailwindcss";
+@import "./oryndoc-tokens.css";
+
+/* ---------------------------------------------------------------------- */
+/* Doctor Workspace — maps the Oryndoc design tokens onto the semantic     */
+/* utility names this app already uses (bg-surface, text-text-primary…).   */
+/* Values live in oryndoc-tokens.css (generated; see design-system/).      */
+/* ---------------------------------------------------------------------- */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --od-font-sans: var(--font-atkinson), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --od-font-mono: var(--font-atkinson-mono), ui-monospace, Consolas, monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--od-font-sans);
+  --font-mono: var(--od-font-mono);
+
+  /* Neutrals */
+  --color-surface: var(--od-surface);
+  --color-surface-subtle: var(--od-canvas);
+  --color-surface-sunken: var(--od-surface-sunken);
+  --color-surface-overlay: var(--od-surface-raised);
+  --color-border: var(--od-border);
+  --color-border-strong: var(--od-border-strong);
+  --color-border-input: var(--od-border-input);
+  --color-text-primary: var(--od-text);
+  --color-text-secondary: var(--od-text-secondary);
+  --color-text-tertiary: var(--od-text-tertiary);
+  --color-text-disabled: var(--od-text-disabled);
+  --color-text-inverted: var(--od-text-inverse);
+
+  /* Brand */
+  --color-brand: var(--od-primary);
+  --color-brand-hover: var(--od-primary-hover);
+  --color-brand-active: var(--od-primary-active);
+  --color-brand-subtle: var(--od-primary-subtle);
+  --color-brand-subtle-strong: var(--od-primary-subtle-strong);
+  --color-brand-text: var(--od-primary-text);
+
+  /* Status */
+  --color-success: var(--od-success);
+  --color-success-subtle: var(--od-success-subtle);
+  --color-warning: var(--od-warning);
+  --color-warning-subtle: var(--od-warning-subtle);
+  --color-danger: var(--od-danger);
+  --color-danger-subtle: var(--od-danger-subtle);
+  --color-info: var(--od-info);
+  --color-info-subtle: var(--od-info-subtle);
+
+  /* Charts */
+  --color-chart-1: var(--od-chart-1);
+  --color-chart-2: var(--od-chart-2);
+  --color-chart-3: var(--od-chart-3);
+  --color-chart-4: var(--od-chart-4);
+  --color-chart-5: var(--od-chart-5);
+  --color-chart-grid: var(--od-chart-grid);
+
+  /* Product accents (launcher). Restrained: one hue family each, no gradients. */
+  --color-reach: var(--od-primary);
+  --color-reach-subtle: var(--od-primary-subtle);
+  --color-voice: #6b5a9e;
+  --color-voice-subtle: #efecf6;
+  --color-assist: #2f6f4f;
+  --color-assist-subtle: #e8f2ec;
+  --color-azure: #375e8f;
+  --color-azure-subtle: #e8eef6;
+
+  /* Launcher (dark, full-screen) — built from the dark token values */
+  --color-launcher-bg: #0b1213;
+  --color-launcher-surface: #111a1c;
+  --color-launcher-surface-raised: #172325;
+  --color-launcher-border: #243234;
+  --color-launcher-border-strong: #33464a;
+  --color-launcher-text-primary: #e6eded;
+  --color-launcher-text-secondary: #b0bec0;
+  --color-launcher-text-tertiary: #93a4a7;
+
+  /* Shape — radius follows hierarchy */
+  --radius-xs: var(--od-radius-xs);
+  --radius-sm: var(--od-radius-sm);
+  --radius-md: var(--od-radius-md);
+  --radius-lg: var(--od-radius-lg);
+  --radius-xl: var(--od-radius-lg);
+
+  /* Elevation: only floating layers get shadows */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: var(--od-shadow-overlay);
+  --shadow-lg: var(--od-shadow-overlay);
+  --shadow-launcher-card: 0 24px 64px -24px rgb(0 0 0 / 0.6);
+
+  --ease-od: var(--od-ease);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--od-canvas);
+  color: var(--od-text);
+  font-family: var(--od-font-sans);
+  font-size: var(--od-text-base);
+  line-height: var(--od-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--od-primary-subtle-strong);
+}
+
+/* Times, counts and money line up in columns. */
+.tabular,
+table,
+time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thin, unobtrusive scrollbars for the dense dashboard panels */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--od-border-strong) transparent;
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--od-border-strong);
+  border-radius: 999px;
+}
+
+/* One focus treatment everywhere. Applies to every focusable element, so
+   nothing can silently lose its focus indicator. */
+:focus-visible {
+  outline: 2px solid var(--od-ring);
+  outline-offset: 2px;
+}
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--od-ring);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--od-space-3);
+  top: -100px;
+  z-index: 100;
+  padding: var(--od-space-2) var(--od-space-3);
+  border-radius: var(--od-radius-sm);
+  background: var(--od-primary);
+  color: var(--od-on-primary);
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: var(--od-space-3);
+}
+
+/* Skeleton loading blocks */
+.skeleton {
+  background: linear-gradient(90deg, var(--od-surface-sunken) 0%, var(--od-border) 50%, var(--od-surface-sunken) 100%);
+  background-size: 200% 100%;
+  animation: od-shimmer 1.4s linear infinite;
+  border-radius: var(--od-radius-sm);
+}
+@keyframes od-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

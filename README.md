@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Oryndoc Doctor Workspace
 
-## Getting Started
+Next.js 16, React, TypeScript and Tailwind CSS. The launcher opens the Reach
+workspace; Voice, Assist and Azure remain coming-soon destinations.
 
-First, run the development server:
+## Local development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Start Docker Desktop, then prepare Central and Reach using the root
+[local development guide](../LOCAL_DEVELOPMENT.md).
+
+```powershell
+node scripts/local-env.mjs
+./scripts/Start-Local.ps1 central-api
+./scripts/Start-Local.ps1 reach-api
+# In another terminal:
+./scripts/Start-Local.ps1 doctor-workspace
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The workspace runs at http://localhost:3101. From this project directory, use
+`npm install` once and `npm run dev -- --port 3101`, or `npm run build` and
+`npm start -- --port 3101`. Webpack is configured as the default because the
+installed Turbopack CSS worker fails to start on this Windows environment.
+The same Tailwind loader runs before Next's CSS processing in Webpack.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `.env.example` to `.env.local`, or let the root environment script
+fill missing values. All API URLs are server-only variables; no service
+key or clinic API key belongs in this browser application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Authentication and clinic access
 
-## Learn More
+Sign in with a Central account, complete MFA when requested, and select a
+clinic with an active Reach membership. The local generated credentials are
+in the ignored root `.local-tools/local-credentials.json`.
 
-To learn more about Next.js, take a look at the following resources:
+Access and rotating refresh tokens stay in httpOnly cookies. The Next proxy
+renews expired access tokens, and authenticated server reads/actions call
+Reach using the selected clinic. Central validates the session and current
+membership; Reach separately checks the current permissions and tenant on
+each request. The browser receives view models, never bearer tokens.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The navigation and mutation controls reflect clinic permissions. The Reach
+API remains the authorization boundary when callers forge requests.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Live data and changes
 
-## Deploy on Vercel
+All eight Reach views use authenticated APIs, with no automatic demo-data
+fallback: appointments, patient directory/history, doctors, scheduling,
+follow-ups, clinic settings, overview and analytics. View adapters live in
+`src/lib/api`. Dates and appointment times use the clinic timezone.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Server actions persist appointment booking/status/rescheduling/cancellation;
+follow-up creation/completion/cancellation; working hours, breaks, holidays
+and blocked time; clinic profile/policies; services and follow-up reasons;
+doctor creation and Central identity links. Validation and conflicts are
+shown in the form.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Follow-ups are associated with an existing appointment. Reach derives patient,
+doctor and the audit actor on the server. Clinic administrators can act as
+administrators; doctor users require an active doctor linked to their Central
+user ID. Manage these links in Doctors & Staff. Central checks the target
+user's active clinic access before accepting a link. Staff invitations,
+roles and permissions remain managed in Central.
+
+Notification delivery uses Reach's existing queue/provider configuration.
+A follow-up's clinical status is separate from whether its message was sent.
+Local development does not require MSG91 credentials.
+
+## Verification
+
+With Central, Reach and this workspace running locally:
+
+```powershell
+node scripts/check-doctor-workspace.mjs
+```
+
+Run that command from the workspace root. It uses generated development
+credentials, creates named test records in Local Integration Clinic, verifies
+MFA, clinic selection, all views, saved follow-ups, the database audit actor,
+settings changes after reload, session refresh, tenant denial and logout.
+It restores the booking horizon, unlinks/deactivates its test doctor and
+cancels its test appointment. Historical test records remain visible.
+Central's MFA request limits still apply to repeated runs.
+
+Backend HTTP tests in Reach also verify that supplied follow-up actors are
+rejected and unmapped doctors cannot act as administrators.
